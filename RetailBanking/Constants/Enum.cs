@@ -1,31 +1,32 @@
-﻿namespace RetailBanking.Constants
+﻿using System.ComponentModel;
+
+namespace RetailBanking.Constants
 {
     public class Enum
     {
     }
     public enum LoanType
-    {
-        PersonalLoan = 1,
-        HomeLoan = 2,
-        VehicleLoan = 3,
-        EducationLoan = 4
+    {       
+        [Description("PersonalLoan")] PersonalLoan,
+        [Description("HomeLoan")] HomeLoan,
+        [Description("VehicleLoan")] VehicleLoan,
+        [Description("EducationLoan")] EducationLoan
     }
 
     public enum ApplicationStatus
     {
-        Submitted = 1,
-        UnderReview = 2,
-        DocumentsPending = 3,
-        Approved = 4,
-        Rejected = 5
+        [Description("Submitted")] Submitted,
+        [Description("UnderReview")] UnderReview,
+        [Description("Approved")] Approved,
+        [Description("Rejected")] Rejected
     }
     public enum KycStatus
     {
-        Pending = 1,
-        Submitted = 2,
-        UnderReview = 3,
-        Approved = 4,
-        Rejected = 5
+        [Description("Pending")] Pending,
+        [Description("Submitted")] Submitted,
+        [Description("UnderReview")] UnderReview,
+        [Description("Approved")] Approved,
+        [Description("Rejected")] Rejected
     }
 }
 

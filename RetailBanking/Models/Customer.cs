@@ -1,6 +1,4 @@
-﻿
-using RetailBanking.Constants;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
 namespace RetailBanking.Models
@@ -25,6 +23,7 @@ namespace RetailBanking.Models
         public IFormFile? AadharCard { get; set; }
         [NotMapped]
         public IFormFile? IncomeProof { get; set; }
-        public KycStatus KycStatus { get; set; }
+        [JsonIgnore]
+        public string? KycStatus { get; set; }
     }
 }

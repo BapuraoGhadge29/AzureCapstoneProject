@@ -22,7 +22,7 @@ namespace RetailBanking.Services
                 return false;
             }
 
-            customer.KycStatus = KycStatus.Approved;
+            customer.KycStatus = KycStatus.Approved.ToString();
 
             await _context.SaveChangesAsync();
 
@@ -38,7 +38,7 @@ namespace RetailBanking.Services
                 return false;
             }
 
-            customer.KycStatus = KycStatus.Rejected;
+            customer.KycStatus = KycStatus.Rejected.ToString();
 
             await _context.SaveChangesAsync();
 

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using RetailBanking.Constants;
 using RetailBanking.Interfaces;
 using RetailBanking.Models;
 using RetailBanking.Repository;
@@ -29,6 +30,7 @@ namespace RetailBanking.Services
         public async Task<LoanApplication> SubmitLoanApplicationAsync(LoanApplication loanApplication)
         {            
             loanApplication.ApplicationDate = DateTime.UtcNow;
+            loanApplication.ApplicationStatus = ApplicationStatus.Submitted.ToString();
             var assessmentResult = LoanAssess(loanApplication);
             if (!assessmentResult.IsEligible)
                 throw new InvalidOperationException($"Loan application rejected: {assessmentResult.Remarks}");

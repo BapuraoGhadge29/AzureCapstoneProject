@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using RetailBanking.Constants;
 using RetailBanking.Models;
 using RetailBanking.Repository;
 using RetailBanking.Repository.Interfaces;
@@ -15,6 +16,7 @@ namespace RetailBanking.Services
         }
         public async Task<APIResponse> CreateCustomer(Customer data)
         {
+            data.KycStatus = KycStatus.Submitted!.ToString();
             _context.Customers.Add(data);
             var Customer = await _context.SaveChangesAsync();
             _response.Result = Customer.ToString();

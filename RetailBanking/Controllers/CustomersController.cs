@@ -8,7 +8,6 @@ namespace RetailBanking.Controllers
 {
     [Route("RetailBanking-api/[controller]")]
     [ApiController]
-    //[Authorize]
     public class CustomersController : ControllerBase
     {
         private readonly IcustomerService _customerservice;
