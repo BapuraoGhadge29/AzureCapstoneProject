@@ -3,7 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34728.123
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RetailBanking", "RetailBanking\RetailBanking.csproj", "{42BEADEF-D32F-4B8D-BA24-C979D6075D56}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RetailBanking", "RetailBanking\RetailBanking.csproj", "{42BEADEF-D32F-4B8D-BA24-C979D6075D56}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DocumentVerificationFunction", "DocumentVerificationFunction\DocumentVerificationFunction.csproj", "{F04D958B-6416-4660-B11C-16892867EBAF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pushnotification", "pushnotification\pushnotification.csproj", "{FEA3442B-8295-45BC-B4EB-E33DAE7BA322}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +19,14 @@ Global
 		{42BEADEF-D32F-4B8D-BA24-C979D6075D56}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{42BEADEF-D32F-4B8D-BA24-C979D6075D56}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{42BEADEF-D32F-4B8D-BA24-C979D6075D56}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F04D958B-6416-4660-B11C-16892867EBAF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F04D958B-6416-4660-B11C-16892867EBAF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F04D958B-6416-4660-B11C-16892867EBAF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F04D958B-6416-4660-B11C-16892867EBAF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FEA3442B-8295-45BC-B4EB-E33DAE7BA322}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FEA3442B-8295-45BC-B4EB-E33DAE7BA322}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FEA3442B-8295-45BC-B4EB-E33DAE7BA322}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FEA3442B-8295-45BC-B4EB-E33DAE7BA322}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

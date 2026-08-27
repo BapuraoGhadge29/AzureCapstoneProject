@@ -10,7 +10,6 @@ namespace RetailBanking.Models
         public string? FullName { get; set; }
         public string? Address { get; set; }
         public DateTime Dob { get; set; }
-        public string? Status { get; set; }
         public string? PAN { get; set; }
         public string? AadharNumber { get; set; }
         public string? Mobile { get; set; }
@@ -23,7 +22,6 @@ namespace RetailBanking.Models
         public IFormFile? AadharCard { get; set; }
         [NotMapped]
         public IFormFile? IncomeProof { get; set; }
-        [JsonIgnore]
         public string? KycStatus { get; set; }
     }
 }

@@ -9,5 +9,6 @@ namespace RetailBanking.Repository.Interfaces
         Task<APIResponse> DeleteCustomer(int customerId);
         Task<List<Customer>> GetAllCustomers();
         Task<Customer> GetcustomerById(int ?customerId);
+        Task DocumentSaveToDb(DocumentDetails documentDetails);
     }
 }

@@ -51,8 +51,8 @@ namespace RetailBanking.Migrations
                     b.Property<string>("Income")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("KycStatus")
-                        .HasColumnType("int");
+                    b.Property<string>("KycStatus")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Mobile")
                         .HasColumnType("nvarchar(max)");
@@ -60,12 +60,28 @@ namespace RetailBanking.Migrations
                     b.Property<string>("PAN")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Status")
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("Id");
 
                     b.ToTable("Customers");
+                });
+
+            modelBuilder.Entity("RetailBanking.Models.DocumentDetails", b =>
+                {
+                    b.Property<int>("DocumentId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DocumentId"));
+
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("DocumentPath")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("DocumentId");
+
+                    b.ToTable("DocumentDetails");
                 });
 
             modelBuilder.Entity("RetailBanking.Models.KYCStatus", b =>
@@ -124,9 +140,6 @@ namespace RetailBanking.Migrations
                     b.Property<int>("EmploymentYears")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("ExistingLiabilities")
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<decimal>("InterestRate")
                         .HasColumnType("decimal(18,2)");
 
@@ -139,15 +152,10 @@ namespace RetailBanking.Migrations
                     b.Property<decimal>("MonthlyIncome")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<string>("SupportingDocumentPath")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("TenureInMonths")
                         .HasColumnType("int");
 
                     b.HasKey("LoanApplicationId");
-
-                    b.HasIndex("CustomerId");
 
                     b.ToTable("LoanApplications");
                 });
@@ -188,22 +196,6 @@ namespace RetailBanking.Migrations
                     b.HasKey("SchemeId");
 
                     b.ToTable("LoanSchemes");
-                });
-
-            modelBuilder.Entity("RetailBanking.Models.LoanApplication", b =>
-                {
-                    b.HasOne("RetailBanking.Models.Customer", "Customer")
-                        .WithMany("LoanApplications")
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Customer");
-                });
-
-            modelBuilder.Entity("RetailBanking.Models.Customer", b =>
-                {
-                    b.Navigation("LoanApplications");
                 });
 #pragma warning restore 612, 618
         }
