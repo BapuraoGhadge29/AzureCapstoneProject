@@ -4,6 +4,7 @@ using RetailBanking.Models;
 using RetailBanking.Repository;
 using RetailBanking.Repository.Interfaces;
 using System.Net;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 namespace RetailBanking.Services
 {
     public class CustomerService : IcustomerService
@@ -16,10 +17,10 @@ namespace RetailBanking.Services
         }
         public async Task<APIResponse> CreateCustomer(Customer data)
         {
-            data.KycStatus = KycStatus.Submitted!.ToString();
-            _context.Customers.Add(data);
-            var Customer = await _context.SaveChangesAsync();
-            _response.Result = Customer.ToString();
+            data.KycStatus = KycStatus.Pending!.ToString();
+            await _context.Customers.AddAsync(data);
+            await _context.SaveChangesAsync();
+            _response.Result = data.Id.ToString();
             _response.Message = "Customer Created";
             _response.ResponseCode = (int)HttpStatusCode.OK;
             return await Task.FromResult(_response);
@@ -27,9 +28,9 @@ namespace RetailBanking.Services
         public async Task<APIResponse> DeleteCustomer(int customerId)
         {
             var customer = await _context.Customers.FindAsync(customerId);
-            _context.Customers.Remove(customer);
+            _context.Customers.Remove(customer!);
             _context.SaveChanges();
-            _response.Result = customer.Id.ToString();
+            _response.Result = customer!.Id.ToString();
             _response.Message = "Customer Deleted";
             _response.ResponseCode = (int)HttpStatusCode.OK;
             return (_response);
@@ -51,12 +52,16 @@ namespace RetailBanking.Services
             customer.FullName = data.FullName;
             customer.Address = data.Address;
             customer.Dob = data.Dob;
-            customer.Status = data.Status;
             _context.Customers.Update(customer);
             _context.SaveChanges();
             _response.Message = "Customer Updated";
             _response.ResponseCode = (int)HttpStatusCode.OK;
             return (_response);
+        }
+        public async Task DocumentSaveToDb(DocumentDetails documentDetails)
+        {
+            _context.DocumentDetails.Add(documentDetails);
+            await _context.SaveChangesAsync();
         }
     }
 }
