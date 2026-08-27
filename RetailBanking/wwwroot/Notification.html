@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Retail Banking Notifications</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js"></script>
+</head>
+<body>
+
+    <h2>Retail Banking Notifications</h2>
+
+    <div id="messages"></div>
+
+    <script>
+
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("https://retailbanking.azurewebsites.net/customerhub")
+            .build();
+
+        connection.on("CustomerCreated", function (message) {
+
+            document.getElementById("messages").innerHTML +=
+                "<p>" + message + "</p>";
+
+            alert(message);
+        });
+
+        connection.start()
+            .then(() => {
+                console.log("Connected to SignalR");
+                alert("Connected to SignalR");
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Connection Failed: " + err);
+            });
+
+    </script>
+
+</body>
+</html>

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Web;
 using Microsoft.OpenApi.Models;
+using RetailBanking.Hubs;
 using RetailBanking.Interfaces;
 using RetailBanking.Models;
 using RetailBanking.Repository;
@@ -61,14 +62,21 @@ builder.Services.AddTransient<ILoanService, LoanService>();
 builder.Services.AddTransient<IKycService, KycService>();
 builder.Services.AddTransient<IRiskScoreService, RiskScoreService>();
 builder.Services.AddTransient<IEligibilityService, EligibilityService>();
-builder.Services.AddSingleton<EventGridService>();
+builder.Services.AddSingleton<NotificationPublisher>();
 
 builder.Services.Configure<CreditRules>(builder.Configuration.GetSection("CreditRules"));
 
-builder.Services.AddControllers();
+
 builder.Services.AddAuthentication();
 builder.Services.AddAuthorization();
 
+
+builder.Services.AddControllers();
+builder.Services.AddSignalR()
+    .AddAzureSignalR(options =>
+    {
+        options.ConnectionString = builder.Configuration["SignalRConnectionstring"];
+    });
 
 var app = builder.Build();
 
@@ -78,13 +86,15 @@ var app = builder.Build();
 //    app.UseSwagger();
 //    app.UseSwaggerUI();
 //}
+app.UseRouting();
+
 app.UseSwagger();
 app.UseSwaggerUI();
 app.UseHttpsRedirection();
-
+app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
-
+app.MapHub<CustomerHub>("/customerhub");
 app.Run();
 

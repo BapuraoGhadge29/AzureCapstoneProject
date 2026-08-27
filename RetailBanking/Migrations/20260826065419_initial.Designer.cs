@@ -63,6 +63,9 @@ namespace RetailBanking.Migrations
                     b.Property<string>("PAN")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("IsnotificationSent")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.ToTable("Customers");

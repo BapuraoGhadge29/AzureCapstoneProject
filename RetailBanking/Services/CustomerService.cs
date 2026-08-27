@@ -4,7 +4,6 @@ using RetailBanking.Models;
 using RetailBanking.Repository;
 using RetailBanking.Repository.Interfaces;
 using System.Net;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 namespace RetailBanking.Services
 {
     public class CustomerService : IcustomerService
@@ -62,6 +61,6 @@ namespace RetailBanking.Services
         {
             _context.DocumentDetails.Add(documentDetails);
             await _context.SaveChangesAsync();
-        }
+        }       
     }
 }

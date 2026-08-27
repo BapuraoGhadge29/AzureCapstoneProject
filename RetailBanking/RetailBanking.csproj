@@ -14,9 +14,11 @@
     <PackageReference Include="Azure.Extensions.AspNetCore.Configuration.Secrets" Version="1.5.2" />
     <PackageReference Include="Azure.Identity" Version="1.21.0" />
     <PackageReference Include="Azure.Messaging.EventGrid" Version="5.0.0" />
+    <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.20.2" />
     <PackageReference Include="Azure.Storage.Blobs" Version="12.29.2" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.30" />
     <PackageReference Include="Microsoft.Azure.NotificationHubs" Version="4.2.0" />
+    <PackageReference Include="Microsoft.Azure.SignalR" Version="1.33.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.30" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.30">
       <PrivateAssets>all</PrivateAssets>
@@ -33,6 +35,10 @@
 
   <ItemGroup>
     <Folder Include="Repository\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\Notification.html" />
   </ItemGroup>
 
 </Project>

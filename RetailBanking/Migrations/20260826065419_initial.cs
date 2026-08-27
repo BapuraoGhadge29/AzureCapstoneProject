@@ -26,7 +26,8 @@ namespace RetailBanking.Migrations
                     EmailAddress = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     EmploymentDetails = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Income = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    KycStatus = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    KycStatus = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IsnotificationSent = table.Column<string>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {

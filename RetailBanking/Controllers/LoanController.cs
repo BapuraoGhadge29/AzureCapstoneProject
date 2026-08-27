@@ -2,6 +2,7 @@
 using RetailBanking.Constants;
 using RetailBanking.Interfaces;
 using RetailBanking.Models;
+using RetailBanking.Services;
 
 namespace RetailBanking.Controllers
 {
@@ -10,10 +11,11 @@ namespace RetailBanking.Controllers
     public class LoanController : ControllerBase
     {
         private readonly ILoanService _loanService;
-
-        public LoanController(ILoanService loanService)
+        private readonly NotificationPublisher _notificationPublisher;
+        public LoanController(ILoanService loanService, NotificationPublisher notificationPublisher)
         {
             _loanService = loanService;
+            _notificationPublisher = notificationPublisher;
         }
 
         [HttpGet("schemes")]
@@ -35,14 +37,30 @@ namespace RetailBanking.Controllers
         [HttpPost("loanapply")]
         public async Task<IActionResult> ApplyLoan(LoanApplication loanApplication)
         {
-            //if (loanApplication.Customer.KycStatus != KycStatus.Approved)
-            //{
-            //    return BadRequest(
-            //        "Loan application is allowed only for KYC approved customers.");
-            //}
-            var result = await _loanService.SubmitLoanApplicationAsync(loanApplication);
+            //get kyc details
+            LoanResponse loanresponse = new LoanResponse();
+            var custdetails = await _loanService.GetCustomerDetails(loanApplication.CustomerId);
+            if (custdetails.KycStatus != KycStatus.Approved.ToString())
+                loanresponse.ErrorMessage = "Loan application is allowed only for KYC approved customers.";
+            if (string.IsNullOrEmpty(loanresponse.ErrorMessage))
+            {
+                loanresponse = await _loanService.SubmitLoanApplicationAsync(loanApplication);
+                CreatedAtAction(nameof(GetApplicationStatus), new { id = loanresponse.LoanAppicationId }, loanresponse);
+            }
 
-            return CreatedAtAction(nameof(GetApplicationStatus),new { id = result.LoanApplicationId },result);
+            //notification sent to service bus
+            await _notificationPublisher.PublishAsync(new LoanResponse
+            {
+                LoanAppicationId = loanresponse.LoanAppicationId,
+                CustomerName = custdetails.FullName!,
+                EmailAddress = custdetails.EmailAddress!,
+                LoanStatus = loanresponse.LoanStatus,
+                LoanAmount = loanApplication.LoanAmount,
+                InterestRate = loanApplication.InterestRate,
+                Remarks = loanresponse.ErrorMessage
+            });
+
+            return Ok(loanresponse);
         }
 
         [HttpGet("status/{id}")]

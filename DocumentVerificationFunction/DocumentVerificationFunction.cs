@@ -61,31 +61,59 @@ public class DocumentVerificationFunction
         await cmd.ExecuteNonQueryAsync();
         await conn.CloseAsync();
     }
-    private async Task SendNotificationAsync(string customerId,string status)
+    private async Task SendNotificationAsync(string customerId, string status)
     {
-        var client = new HttpClient();
-        string? emailAddress;
+        string? emailAddress = null;
+        string? fullName = null;
+        bool isNotificationSent = false;
 
         using SqlConnection conn = new SqlConnection(_config["SqlConnectionString"]!);
-        await conn.OpenAsync();        
+        await conn.OpenAsync();
 
-        using (SqlCommand cmd = new SqlCommand("SELECT EmailAddress FROM Customers WHERE Id=@CustomerId", conn))
+        string selectQuery = @"SELECT EmailAddress, FullName, IsNotificationSent FROM Customers WHERE Id = @CustomerId";
+
+        using (SqlCommand cmd = new SqlCommand(selectQuery, conn))
         {
             cmd.Parameters.AddWithValue("@CustomerId", customerId);
-            emailAddress = Convert.ToString(await cmd.ExecuteScalarAsync());
+
+            using SqlDataReader reader = await cmd.ExecuteReaderAsync();
+
+            if (await reader.ReadAsync())
+            {
+                emailAddress = reader["EmailAddress"]?.ToString();
+                fullName = reader["FullName"]?.ToString();
+                isNotificationSent = Convert.ToInt32(reader["IsNotificationSent"]) == 1 ? true : false;
+            }
+        }
+
+        // Skip if notification already sent
+        if (isNotificationSent)
+        {
+            return;
         }
 
         var payload = new
         {
+            fullName,
             customerId,
             emailAddress,
             status
         };
 
+        using var client = new HttpClient();
+
         var content = new StringContent(System.Text.Json.JsonSerializer.Serialize(payload),Encoding.UTF8,"application/json");
-
         string logicAppUrl = _config["LogicAppUrl"]!;
+        HttpResponseMessage response = await client.PostAsync(logicAppUrl, content);
 
-        await client.PostAsync(logicAppUrl, content);
+        if (response.IsSuccessStatusCode)
+        {
+            string updateQuery = @"UPDATE Customers SET IsNotificationSent = 1 WHERE Id = @CustomerId";
+
+            using SqlCommand cmd1 = new SqlCommand(updateQuery, conn);
+            cmd1.Parameters.AddWithValue("@CustomerId", customerId);
+
+            await cmd1.ExecuteNonQueryAsync();
+        }
     }
 }

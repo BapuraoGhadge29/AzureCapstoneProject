@@ -1,4 +1,5 @@
 ﻿using RetailBanking.Models;
+using System.Threading.Tasks;
 
 namespace RetailBanking.Repository.Interfaces
 {
@@ -9,6 +10,6 @@ namespace RetailBanking.Repository.Interfaces
         Task<APIResponse> DeleteCustomer(int customerId);
         Task<List<Customer>> GetAllCustomers();
         Task<Customer> GetcustomerById(int ?customerId);
-        Task DocumentSaveToDb(DocumentDetails documentDetails);
+        Task DocumentSaveToDb(DocumentDetails documentDetails);        
     }
 }

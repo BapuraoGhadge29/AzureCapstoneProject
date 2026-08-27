@@ -27,17 +27,29 @@ namespace RetailBanking.Services
             return await _context.LoanSchemes.ToListAsync();
         }
 
-        public async Task<LoanApplication> SubmitLoanApplicationAsync(LoanApplication loanApplication)
-        {            
+        public async Task<LoanResponse> SubmitLoanApplicationAsync(LoanApplication loanApplication)
+        {
+            LoanResponse loanresponse = new LoanResponse();
             loanApplication.ApplicationDate = DateTime.UtcNow;
             loanApplication.ApplicationStatus = ApplicationStatus.Submitted.ToString();
             var assessmentResult = LoanAssess(loanApplication);
             if (!assessmentResult.IsEligible)
-                throw new InvalidOperationException($"Loan application rejected: {assessmentResult.Remarks}");
-            _context.LoanApplications.Add(loanApplication);
-            await _context.SaveChangesAsync();
+                loanresponse.ErrorMessage = $"Loan application rejected: {assessmentResult.Remarks}";
+            if(assessmentResult.Status =="Rejected")
+                loanresponse.ErrorMessage = $"Loan application rejected due to credit score is not up to mark";
+            if (string.IsNullOrEmpty(loanresponse.ErrorMessage))
+            {
+                _context.LoanApplications.Add(loanApplication);
+                await _context.SaveChangesAsync();                
+            }
 
-            return loanApplication;
+            loanresponse.LoanAppicationId = loanApplication.LoanApplicationId;
+            loanresponse.LoanStatus = loanApplication.ApplicationStatus;
+            loanresponse.LoanAmount = loanApplication.LoanAmount;
+            loanresponse.InterestRate = loanApplication.InterestRate;
+            loanresponse.Remarks = loanresponse.ErrorMessage;
+
+            return loanresponse;
         }
 
         public async Task<LoanApplication?> GetApplicationByIdAsync(int id)
@@ -85,6 +97,10 @@ namespace RetailBanking.Services
                 Status = status,
                 Remarks = $"Application classified as {status}"
             };
+        }
+        public async Task<Customer> GetCustomerDetails(int custId)
+        {
+            return await _context.Customers.Where(x => x.Id == custId).FirstOrDefaultAsync()!;
         }
     }
 }

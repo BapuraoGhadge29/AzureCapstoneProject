@@ -16,6 +16,7 @@ namespace RetailBanking.Models
         public string? EmailAddress { get; set; }
         public string? EmploymentDetails { get; set; }
         public string? Income { get; set; }
+        public int ?IsnotificationSent { get; set; }
         [NotMapped]
         public IFormFile? PanCard { get; set; }
         [NotMapped]

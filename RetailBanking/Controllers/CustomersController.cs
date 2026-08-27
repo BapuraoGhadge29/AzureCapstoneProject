@@ -1,6 +1,8 @@
 ﻿using Azure.Storage.Blobs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using RetailBanking.Hubs;
 using RetailBanking.Models;
 using RetailBanking.Repository.Interfaces;
 using RetailBanking.Services;
@@ -14,12 +16,12 @@ namespace RetailBanking.Controllers
     {
         private readonly IcustomerService _customerservice;
         private readonly IConfiguration _configuration;
-        private readonly EventGridService _gridService;
-        public CustomersController(IcustomerService customerService, IConfiguration configuration, EventGridService gridService)
+        private readonly IHubContext<CustomerHub> _hubContext;
+        public CustomersController(IcustomerService customerService, IConfiguration configuration, IHubContext<CustomerHub> hubContext)
         {
             _customerservice = customerService;
             _configuration = configuration;
-            _gridService = gridService;
+            _hubContext = hubContext;
         }
        
         [HttpGet("GetAllCustomers")]
@@ -72,6 +74,7 @@ namespace RetailBanking.Controllers
                 }
 
                 //await _gridService.PublishCustomerCreated(customer.Id,customer.FullName!);
+                await _hubContext.Clients.All.SendAsync("CustomerCreated",$"New Customer Created Successfully : {customer.FullName}");
 
                 return Ok(response);
             }
