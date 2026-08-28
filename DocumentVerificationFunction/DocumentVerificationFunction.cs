@@ -82,7 +82,14 @@ public class DocumentVerificationFunction
             {
                 emailAddress = reader["EmailAddress"]?.ToString();
                 fullName = reader["FullName"]?.ToString();
-                isNotificationSent = Convert.ToInt32(reader["IsNotificationSent"]) == 1 ? true : false;
+                if (reader["IsNotificationSent"] != DBNull.Value)
+                {
+                    isNotificationSent = true;
+                }
+                else
+                {
+                    isNotificationSent = false;
+                }
             }
         }
 
@@ -102,18 +109,22 @@ public class DocumentVerificationFunction
 
         using var client = new HttpClient();
 
-        var content = new StringContent(System.Text.Json.JsonSerializer.Serialize(payload),Encoding.UTF8,"application/json");
-        string logicAppUrl = _config["LogicAppUrl"]!;
+        var content = new StringContent(System.Text.Json.JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
+        string logicAppUrl = _config["LogicAppUrl"]!;       
+
+        string updateQuery = @"UPDATE Customers SET IsNotificationSent = 1 WHERE Id = @CustomerId";
+        using SqlCommand cmd1 = new SqlCommand(updateQuery, conn);
+        cmd1.Parameters.AddWithValue("@CustomerId", customerId);
+
         HttpResponseMessage response = await client.PostAsync(logicAppUrl, content);
-
-        if (response.IsSuccessStatusCode)
+        if(!response.IsSuccessStatusCode)
         {
-            string updateQuery = @"UPDATE Customers SET IsNotificationSent = 1 WHERE Id = @CustomerId";
-
-            using SqlCommand cmd1 = new SqlCommand(updateQuery, conn);
+            updateQuery = @"UPDATE Customers SET IsNotificationSent = o WHERE Id = @CustomerId";
+            using SqlCommand cmd2 = new SqlCommand(updateQuery, conn);
             cmd1.Parameters.AddWithValue("@CustomerId", customerId);
-
-            await cmd1.ExecuteNonQueryAsync();
         }
+
+        await cmd1.ExecuteNonQueryAsync();
+
     }
 }

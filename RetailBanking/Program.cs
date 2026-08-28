@@ -22,6 +22,18 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddMi
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowReact",
+        policy =>
+        {
+            policy
+                .WithOrigins("http://localhost:5173")
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+        });
+});
+
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo
@@ -86,6 +98,7 @@ var app = builder.Build();
 //    app.UseSwagger();
 //    app.UseSwaggerUI();
 //}
+app.UseCors("AllowReact");
 app.UseRouting();
 
 app.UseSwagger();

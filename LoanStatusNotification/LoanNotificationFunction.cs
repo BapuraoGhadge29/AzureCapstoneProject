@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using RetailBanking.Models;
+using System.Net.Mail;
 
 namespace LoanStatusNotification;
 
@@ -67,7 +68,21 @@ public class LoanNotificationFunction
                 Html = html
             });
 
-        await emailClient.SendAsync(WaitUntil.Completed, emailmessage);
+        _logger.LogInformation("Starting email send");
+
+        try
+        {
+            var result = await emailClient.SendAsync(
+                WaitUntil.Completed,
+                emailmessage);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex,
+                "Email sending failed");
+        }
+
+        //await emailClient.SendAsync(WaitUntil.Completed, emailmessage);
 
         // Complete the message
         await messageActions.CompleteMessageAsync(message);

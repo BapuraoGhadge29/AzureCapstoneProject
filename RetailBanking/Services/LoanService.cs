@@ -31,12 +31,18 @@ namespace RetailBanking.Services
         {
             LoanResponse loanresponse = new LoanResponse();
             loanApplication.ApplicationDate = DateTime.UtcNow;
-            loanApplication.ApplicationStatus = ApplicationStatus.Submitted.ToString();
+            loanApplication.ApplicationStatus = ApplicationStatus.Approved.ToString();
             var assessmentResult = LoanAssess(loanApplication);
             if (!assessmentResult.IsEligible)
+            {
                 loanresponse.ErrorMessage = $"Loan application rejected: {assessmentResult.Remarks}";
-            if(assessmentResult.Status =="Rejected")
+                loanApplication.ApplicationStatus = ApplicationStatus.Rejected.ToString();
+            }
+            if (assessmentResult.Status == "Rejected")
+            {
                 loanresponse.ErrorMessage = $"Loan application rejected due to credit score is not up to mark";
+                loanApplication.ApplicationStatus = ApplicationStatus.Rejected.ToString();
+            }
             if (string.IsNullOrEmpty(loanresponse.ErrorMessage))
             {
                 _context.LoanApplications.Add(loanApplication);
