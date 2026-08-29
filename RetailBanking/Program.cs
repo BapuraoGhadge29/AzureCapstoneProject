@@ -27,9 +27,7 @@ builder.Services.AddCors(options =>
         policy =>
         {
             policy
-                .WithOrigins(
-                    "http://localhost:5173",
-                    "https://retailbanking.azurewebsites.net")
+                .AllowAnyOrigin()//we can provide ui url here
                 .AllowAnyHeader()
                 .AllowAnyMethod();
         });
