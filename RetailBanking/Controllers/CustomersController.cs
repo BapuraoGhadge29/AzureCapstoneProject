@@ -1,4 +1,5 @@
-﻿using Azure.Storage.Blobs;
+﻿using Azure;
+using Azure.Storage.Blobs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
@@ -51,28 +52,8 @@ namespace RetailBanking.Controllers
         {            
             if (ModelState.IsValid)
             {
-             var documents = new List<(string DocumentType, IFormFile? File)>
-                {
-                    ("PAN", customer.PanCard),
-                    ("AADHAR", customer.AadharCard),
-                    ("INCOMEPROOF", customer.IncomeProof)
-                };
-                var response = await _customerservice.CreateCustomer(customer);
-                string? documentUrl = null;
-                foreach (var document in documents)
-                {
-                    if (document.DocumentType != null && document.File != null)
-                    {
-                        DocumentDetails documentDetails = new DocumentDetails();
-
-                        documentUrl = await UploadFileAsync(document.File, response.Result);
-                        documentDetails.DocumentPath = documentUrl;
-                        documentDetails.CustomerId = int.Parse(response.Result);
-
-                        await _customerservice.DocumentSaveToDb(documentDetails);
-                    }
-                }
-
+                var response = await _customerservice.CreateCustomer(customer);                
+                await CreateDocumentUploadObject(customer,response);
                 //await _gridService.PublishCustomerCreated(customer.Id,customer.FullName!);
                 await _hubContext.Clients.All.SendAsync("CustomerCreated",$"New Customer Created Successfully : {customer.FullName}");
 
@@ -85,6 +66,7 @@ namespace RetailBanking.Controllers
         public async Task<IActionResult> UpdateCustomer(Customer customer, int id)
         {           
             var response = await _customerservice.UpdateCustomer(customer, id);
+            await CreateDocumentUploadObject(customer, response);
             return Ok(response);
         }
        
@@ -103,17 +85,35 @@ namespace RetailBanking.Controllers
             //connectionString = Environment.GetEnvironmentVariable("azureblobstorageconnectionstring")!;
 
             BlobContainerClient containerClient = new BlobContainerClient(connectionString, containerName);
-
             await containerClient.CreateIfNotExistsAsync();
-
             BlobClient blobClient = containerClient.GetBlobClient($"{customerId}/{file.FileName}");
-
             using (var stream = file.OpenReadStream())
             {
                 await blobClient.UploadAsync(stream, overwrite: true);
             }
-
             return blobClient.Uri.ToString();
+        }
+        [NonAction]
+        public async Task CreateDocumentUploadObject(Customer customer, APIResponse response)
+        {
+            var documents = new List<(string DocumentType, IFormFile? File)>
+                {
+                    ("PAN", customer.PanCard),
+                    ("AADHAR", customer.AadharCard),
+                    ("INCOMEPROOF", customer.IncomeProof)
+                };
+            string? documentUrl = null;
+            foreach (var document in documents)
+            {
+                if (document.DocumentType != null && document.File != null)
+                {
+                    DocumentDetails documentDetails = new DocumentDetails();
+                    documentUrl = await UploadFileAsync(document.File, response.Result);
+                    documentDetails.DocumentPath = documentUrl;
+                    documentDetails.CustomerId = int.Parse(response.Result);
+                    await _customerservice.DocumentSaveToDb(documentDetails);
+                }
+            }
         }
     }
 }

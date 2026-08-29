@@ -62,7 +62,11 @@ namespace RetailBanking.Services
         {
             return await _context.LoanApplications.FirstOrDefaultAsync(x => x.LoanApplicationId == id);
         }
-
+        public async Task<List<LoanApplication>> GetApplicationsAsync()
+        {
+            var loanApplications= await _context.LoanApplications.ToListAsync();
+            return loanApplications;
+        }
         public async Task<decimal> CalculateEMIAsync(decimal loanAmount,decimal annualInterestRate,int tenureMonths)
         {
             double principal = (double)loanAmount;
@@ -104,9 +108,16 @@ namespace RetailBanking.Services
                 Remarks = $"Application classified as {status}"
             };
         }
-        public async Task<Customer> GetCustomerDetails(int custId)
+        public async Task<Customer> GetCustomerDetailsAsync(int custId)
         {
             return await _context.Customers.Where(x => x.Id == custId).FirstOrDefaultAsync()!;
+        }
+        public async Task ApproveRejectLoanApplicationAsync(int id, string status)
+        {
+            var loanapplication = await _context.LoanApplications.Where(x => x.LoanApplicationId == id).FirstOrDefaultAsync();
+            loanapplication!.ApplicationStatus=status;
+            _context.LoanApplications.Update(loanapplication);
+            await _context.SaveChangesAsync();
         }
     }
 }

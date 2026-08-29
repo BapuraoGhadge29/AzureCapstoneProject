@@ -4,8 +4,7 @@ using System.Text.Json.Serialization;
 namespace RetailBanking.Models
 {
     public partial class Customer
-    {
-        [JsonIgnore]
+    {        
         public int Id { get; set; }
         public string? FullName { get; set; }
         public string? Address { get; set; }

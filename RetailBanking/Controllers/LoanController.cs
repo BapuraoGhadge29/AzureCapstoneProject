@@ -27,7 +27,7 @@ namespace RetailBanking.Controllers
         }
         
         [HttpPost("calculateemi")]
-        public async Task<IActionResult> CalculateEmi(EmiRequest request)
+        public async Task<IActionResult> CalculateEmiAsync([FromBody] EmiRequest request)
         {
             var emi = await _loanService.CalculateEMIAsync(request.LoanAmount,request.InterestRate,request.TenureMonths);
 
@@ -35,17 +35,17 @@ namespace RetailBanking.Controllers
         }
 
         [HttpPost("loanapply")]
-        public async Task<IActionResult> ApplyLoan(LoanApplication loanApplication)
+        public async Task<IActionResult> ApplyLoanAsync([FromForm] LoanApplication loanApplication)
         {
             //get kyc details
             LoanResponse loanresponse = new LoanResponse();
-            var custdetails = await _loanService.GetCustomerDetails(loanApplication.CustomerId);
+            var custdetails = await _loanService.GetCustomerDetailsAsync(loanApplication.CustomerId);
             if (custdetails.KycStatus != KycStatus.Approved.ToString())
                 loanresponse.ErrorMessage = "Loan application is allowed only for KYC approved customers.";
             if (string.IsNullOrEmpty(loanresponse.ErrorMessage))
             {
                 loanresponse = await _loanService.SubmitLoanApplicationAsync(loanApplication);
-                CreatedAtAction(nameof(GetApplicationStatus), new { id = loanresponse.LoanAppicationId }, loanresponse);
+                CreatedAtAction(nameof(GetApplicationStatusAsync), new { id = loanresponse.LoanAppicationId }, loanresponse);
             }
 
             //notification sent to service bus
@@ -59,12 +59,13 @@ namespace RetailBanking.Controllers
                 InterestRate = loanApplication.InterestRate,
                 Remarks = loanresponse.ErrorMessage
             });
-
+            if (string.IsNullOrEmpty(loanresponse.Remarks))
+                loanresponse.Remarks = "Loan Application Submitted Successfully";
             return Ok(loanresponse);
         }
 
         [HttpGet("status/{id}")]
-        public async Task<IActionResult> GetApplicationStatus(int id)
+        public async Task<IActionResult> GetApplicationStatusAsync(int id)
         {
             var application =await _loanService.GetApplicationByIdAsync(id);
 
@@ -79,6 +80,18 @@ namespace RetailBanking.Controllers
                 Status = application.ApplicationStatus,
                 AppliedDate = application.ApplicationDate
             });
+        }
+        [HttpGet("GetApplications")]
+        public async Task<IActionResult> GetApplicationsAsync()
+        {
+            var applications = await _loanService.GetApplicationsAsync();
+            return Ok(applications);
+        }
+        [HttpPost("ApproveRejectLoanApplication")]
+        public async Task<IActionResult> ApproveRejectLoanApplicationAsync(int id,string status)
+        {
+            await _loanService.ApproveRejectLoanApplicationAsync(id,status);
+            return Ok();
         }
     }
 }

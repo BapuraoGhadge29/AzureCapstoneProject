@@ -21,14 +21,15 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddMi
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReact",
         policy =>
         {
             policy
-                .WithOrigins("http://localhost:5173")
+                .WithOrigins(
+                    "http://localhost:5173",
+                    "https://retailbanking.azurewebsites.net")
                 .AllowAnyHeader()
                 .AllowAnyMethod();
         });

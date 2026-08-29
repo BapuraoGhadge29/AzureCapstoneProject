@@ -3,6 +3,7 @@ using RetailBanking.Constants;
 using RetailBanking.Models;
 using RetailBanking.Repository;
 using RetailBanking.Repository.Interfaces;
+using System.Linq;
 using System.Net;
 namespace RetailBanking.Services
 {
@@ -51,6 +52,12 @@ namespace RetailBanking.Services
             customer.FullName = data.FullName;
             customer.Address = data.Address;
             customer.Dob = data.Dob;
+            customer.Mobile = data.Mobile;
+            customer.EmailAddress = data.EmailAddress;
+            customer.EmploymentDetails = data.EmploymentDetails;
+            customer.AadharNumber = data.AadharNumber;
+            customer.PAN = data.PAN;
+            customer.KycStatus = KycStatus.Pending!.ToString();
             _context.Customers.Update(customer);
             _context.SaveChanges();
             _response.Message = "Customer Updated";
@@ -59,8 +66,15 @@ namespace RetailBanking.Services
         }
         public async Task DocumentSaveToDb(DocumentDetails documentDetails)
         {
-            _context.DocumentDetails.Add(documentDetails);
-            await _context.SaveChangesAsync();
-        }       
+            var documents = await _context.DocumentDetails.Where(x => x.CustomerId == documentDetails.CustomerId).ToListAsync();
+            foreach (var item in documents)
+            {
+                if (item.DocumentPath != documentDetails.DocumentPath)
+                {
+                    _context.DocumentDetails.Add(documentDetails);
+                    await _context.SaveChangesAsync();
+                }
+            }
+        }      
     }
 }
