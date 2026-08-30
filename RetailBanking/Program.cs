@@ -27,7 +27,8 @@ builder.Services.AddCors(options =>
         policy =>
         {
             policy
-                .AllowAnyOrigin()//we can provide ui url here
+                //.AllowAnyOrigin()//we can provide ui url here
+                .WithOrigins("http://localhost:5173","https://retailbankingui-a0dtbkhfdjd7hbh6.southeastasia-01.azurewebsites.net")
                 .AllowAnyHeader()
                 .AllowAnyMethod();
         });
@@ -67,6 +68,11 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
+builder.Services.AddLogging(logging =>
+{
+    logging.AddConsole();
+    logging.AddAzureWebAppDiagnostics();
+});
 
 builder.Services.AddTransient<IcustomerService, CustomerService>();
 builder.Services.AddTransient<ILoanService, LoanService>();

@@ -18,16 +18,19 @@ namespace RetailBanking.Controllers
         private readonly IcustomerService _customerservice;
         private readonly IConfiguration _configuration;
         private readonly IHubContext<CustomerHub> _hubContext;
-        public CustomersController(IcustomerService customerService, IConfiguration configuration, IHubContext<CustomerHub> hubContext)
+        private readonly ILogger<CustomersController> _logger;
+        public CustomersController(IcustomerService customerService, IConfiguration configuration, IHubContext<CustomerHub> hubContext, ILogger<CustomersController> logger)
         {
             _customerservice = customerService;
             _configuration = configuration;
             _hubContext = hubContext;
+            _logger = logger;
         }
        
         [HttpGet("GetAllCustomers")]
         public async Task<IActionResult> GetAllCustomers()
         {
+            _logger.LogInformation("Get all customer called");
             var allCustomers = await _customerservice.GetAllCustomers();
             return Ok(allCustomers);
         }
@@ -56,7 +59,7 @@ namespace RetailBanking.Controllers
                 await CreateDocumentUploadObject(customer,response);
                 //await _gridService.PublishCustomerCreated(customer.Id,customer.FullName!);
                 await _hubContext.Clients.All.SendAsync("CustomerCreated",$"New Customer Created Successfully : {customer.FullName}");
-
+                _logger.LogInformation("Customer created"+ customer.FullName);
                 return Ok(response);
             }
             return BadRequest();
@@ -67,6 +70,7 @@ namespace RetailBanking.Controllers
         {           
             var response = await _customerservice.UpdateCustomer(customer, id);
             await CreateDocumentUploadObject(customer, response);
+            _logger.LogInformation("Customer updated" + customer.FullName);
             return Ok(response);
         }
        
@@ -74,6 +78,7 @@ namespace RetailBanking.Controllers
         public async Task<IActionResult> DeleteCustomer(int id)
         {           
             var response = await _customerservice.DeleteCustomer(id);
+            _logger.LogInformation("Customer delete id:" + id);
             return Ok(response);
         }
         [NonAction]

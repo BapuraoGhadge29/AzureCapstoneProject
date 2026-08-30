@@ -12,10 +12,12 @@ namespace RetailBanking.Controllers
     {
         private readonly ILoanService _loanService;
         private readonly NotificationPublisher _notificationPublisher;
-        public LoanController(ILoanService loanService, NotificationPublisher notificationPublisher)
+        private readonly ILogger<LoanController> _logger;
+        public LoanController(ILoanService loanService, NotificationPublisher notificationPublisher, ILogger<LoanController> logger)
         {
             _loanService = loanService;
             _notificationPublisher = notificationPublisher;
+            _logger = logger;
         }
 
         [HttpGet("schemes")]
@@ -29,6 +31,7 @@ namespace RetailBanking.Controllers
         [HttpPost("calculateemi")]
         public async Task<IActionResult> CalculateEmiAsync([FromBody] EmiRequest request)
         {
+            _logger.LogInformation("Calculate emi called");
             var emi = await _loanService.CalculateEMIAsync(request.LoanAmount,request.InterestRate,request.TenureMonths);
 
             return Ok(new { EMI = emi });
@@ -38,6 +41,7 @@ namespace RetailBanking.Controllers
         public async Task<IActionResult> ApplyLoanAsync([FromForm] LoanApplication loanApplication)
         {
             //get kyc details
+            _logger.LogInformation("Loan Apply started");
             LoanResponse loanresponse = new LoanResponse();
             var custdetails = await _loanService.GetCustomerDetailsAsync(loanApplication.CustomerId);
             if (custdetails.KycStatus != KycStatus.Approved.ToString())
@@ -61,12 +65,14 @@ namespace RetailBanking.Controllers
             });
             if (string.IsNullOrEmpty(loanresponse.Remarks))
                 loanresponse.Remarks = "Loan Application Submitted Successfully";
+            _logger.LogInformation(loanresponse.Remarks);
             return Ok(loanresponse);
         }
 
         [HttpGet("status/{id}")]
         public async Task<IActionResult> GetApplicationStatusAsync(int id)
         {
+            _logger.LogInformation("Get application status called");
             var application =await _loanService.GetApplicationByIdAsync(id);
 
             if (application == null)
@@ -89,8 +95,21 @@ namespace RetailBanking.Controllers
         }
         [HttpPost("ApproveRejectLoanApplication")]
         public async Task<IActionResult> ApproveRejectLoanApplicationAsync(int id,string status)
-        {
+        {            
             await _loanService.ApproveRejectLoanApplicationAsync(id,status);
+            _logger.LogInformation("Application status");
+            var loanDetails = await _loanService.GetApplicationByIdAsync(id);
+            var custdetails = await _loanService.GetCustomerDetailsAsync(loanDetails!.CustomerId);
+            await _notificationPublisher.PublishAsync(new LoanResponse
+            {
+                LoanAppicationId = loanDetails.LoanApplicationId,
+                CustomerName = custdetails.FullName!,
+                EmailAddress = custdetails.EmailAddress!,
+                LoanStatus = loanDetails.ApplicationStatus!,
+                LoanAmount = loanDetails.LoanAmount,
+                InterestRate = loanDetails.InterestRate,
+                Remarks = $"Loan application " + status + "successfully"
+            });
             return Ok();
         }
     }

@@ -31,7 +31,7 @@ namespace RetailBanking.Services
         {
             LoanResponse loanresponse = new LoanResponse();
             loanApplication.ApplicationDate = DateTime.UtcNow;
-            loanApplication.ApplicationStatus = ApplicationStatus.Approved.ToString();
+            loanApplication.ApplicationStatus = ApplicationStatus.Submitted.ToString();
             var assessmentResult = LoanAssess(loanApplication);
             if (!assessmentResult.IsEligible)
             {
