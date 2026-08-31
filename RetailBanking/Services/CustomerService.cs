@@ -27,6 +27,14 @@ namespace RetailBanking.Services
         }
         public async Task<APIResponse> DeleteCustomer(int customerId)
         {
+            var loandetails = await _context.LoanApplications.Where(x => x.CustomerId == customerId).ToListAsync();
+            if (loandetails.Any())
+            {
+                _response.Message = "Customer Linked with Loan Application";
+                _response.ResponseCode = (int)HttpStatusCode.NotModified;
+				return (_response);
+			}
+
             var customer = await _context.Customers.FindAsync(customerId);
             _context.Customers.Remove(customer!);
             _context.SaveChanges();
@@ -56,8 +64,7 @@ namespace RetailBanking.Services
             customer.EmailAddress = data.EmailAddress;
             customer.EmploymentDetails = data.EmploymentDetails;
             customer.AadharNumber = data.AadharNumber;
-            customer.PAN = data.PAN;
-            customer.KycStatus = KycStatus.Pending!.ToString();
+            customer.PAN = data.PAN;            
             _context.Customers.Update(customer);
             _context.SaveChanges();
             _response.Message = "Customer Updated";

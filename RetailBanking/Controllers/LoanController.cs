@@ -46,25 +46,32 @@ namespace RetailBanking.Controllers
             var custdetails = await _loanService.GetCustomerDetailsAsync(loanApplication.CustomerId);
             if (custdetails.KycStatus != KycStatus.Approved.ToString())
                 loanresponse.ErrorMessage = "Loan application is allowed only for KYC approved customers.";
+
             if (string.IsNullOrEmpty(loanresponse.ErrorMessage))
             {
                 loanresponse = await _loanService.SubmitLoanApplicationAsync(loanApplication);
                 CreatedAtAction(nameof(GetApplicationStatusAsync), new { id = loanresponse.LoanAppicationId }, loanresponse);
             }
-
-            //notification sent to service bus
-            await _notificationPublisher.PublishAsync(new LoanResponse
+            else
             {
-                LoanAppicationId = loanresponse.LoanAppicationId,
-                CustomerName = custdetails.FullName!,
-                EmailAddress = custdetails.EmailAddress!,
-                LoanStatus = loanresponse.LoanStatus,
-                LoanAmount = loanApplication.LoanAmount,
-                InterestRate = loanApplication.InterestRate,
-                Remarks = loanresponse.ErrorMessage
-            });
+                loanresponse.Remarks = "Loan application is allowed only for KYC approved customers.";
+            }
+            //notification sent to service bus
             if (string.IsNullOrEmpty(loanresponse.Remarks))
+            {
+                await _notificationPublisher.PublishAsync(new LoanResponse
+                {
+                    LoanAppicationId = loanresponse.LoanAppicationId,
+                    CustomerName = custdetails.FullName!,
+                    EmailAddress = custdetails.EmailAddress!,
+                    LoanStatus = loanresponse.LoanStatus,
+                    LoanAmount = loanApplication.LoanAmount,
+                    InterestRate = loanApplication.InterestRate,
+                    Remarks = loanresponse.ErrorMessage
+                });
+
                 loanresponse.Remarks = "Loan Application Submitted Successfully";
+            }            
             _logger.LogInformation(loanresponse.Remarks);
             return Ok(loanresponse);
         }

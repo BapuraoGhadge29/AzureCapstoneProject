@@ -3,10 +3,12 @@ using Azure.Storage.Blobs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using RetailBanking.Constants;
 using RetailBanking.Hubs;
 using RetailBanking.Models;
 using RetailBanking.Repository.Interfaces;
 using RetailBanking.Services;
+using System.Net;
 
 namespace RetailBanking.Controllers
 {
@@ -64,12 +66,23 @@ namespace RetailBanking.Controllers
             }
             return BadRequest();
         }
-       
+
         [HttpPost("UpdateCustomer")]
         public async Task<IActionResult> UpdateCustomer(Customer customer, int id)
-        {           
-            var response = await _customerservice.UpdateCustomer(customer, id);
-            await CreateDocumentUploadObject(customer, response);
+        {
+            APIResponse response = new APIResponse();
+
+            if (customer.PanCard is not null || customer.AadharCard is not null || customer.IncomeProof is not null)
+            {
+                customer.KycStatus = KycStatus.Pending!.ToString();
+                response = await _customerservice.UpdateCustomer(customer, id);
+                await CreateDocumentUploadObject(customer, response);
+            }
+            else
+            {
+                response = await _customerservice.UpdateCustomer(customer, id);
+            }
+
             _logger.LogInformation("Customer updated" + customer.FullName);
             return Ok(response);
         }
