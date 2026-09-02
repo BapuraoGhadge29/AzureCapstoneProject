@@ -30,7 +30,8 @@ builder.Services.AddCors(options =>
                 .AllowAnyOrigin()//we can provide ui url here
                 //.WithOrigins("http://localhost:5173","https://retailbankingui-a0dtbkhfdjd7hbh6.southeastasia-01.azurewebsites.net")
                 .AllowAnyHeader()
-                .AllowAnyMethod();
+                .AllowAnyMethod()
+                .AllowCredentials(); 
         });
 });
 

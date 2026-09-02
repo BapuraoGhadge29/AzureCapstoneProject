@@ -64,9 +64,12 @@ namespace RetailBanking.Services
             customer.EmailAddress = data.EmailAddress;
             customer.EmploymentDetails = data.EmploymentDetails;
             customer.AadharNumber = data.AadharNumber;
-            customer.PAN = data.PAN;            
+            customer.PAN = data.PAN;  
+            customer.KycStatus = data.KycStatus;
+            customer.IsnotificationSent = data.IsnotificationSent;
             _context.Customers.Update(customer);
             _context.SaveChanges();
+            _response.Result = customerId.ToString();
             _response.Message = "Customer Updated";
             _response.ResponseCode = (int)HttpStatusCode.OK;
             return (_response);

@@ -75,6 +75,7 @@ namespace RetailBanking.Controllers
             if (customer.PanCard is not null || customer.AadharCard is not null || customer.IncomeProof is not null)
             {
                 customer.KycStatus = KycStatus.Pending!.ToString();
+                customer.IsnotificationSent = null;
                 response = await _customerservice.UpdateCustomer(customer, id);
                 await CreateDocumentUploadObject(customer, response);
             }
