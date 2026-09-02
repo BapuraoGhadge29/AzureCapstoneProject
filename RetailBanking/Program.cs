@@ -21,18 +21,33 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddMi
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
+//builder.Services.AddCors(options =>
+//{
+//    options.AddPolicy("AllowReact",
+//        policy =>
+//        {
+//            policy
+//                .AllowAnyOrigin()//we can provide ui url here
+//                                 //.WithOrigins("http://localhost:5173","https://retailbankingui-a0dtbkhfdjd7hbh6.southeastasia-01.azurewebsites.net")
+//                .AllowAnyHeader()
+//                .AllowAnyMethod();
+//                //.AllowCredentials(); 
+//        });
+//});
+
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowReact",
-        policy =>
-        {
-            policy
-                .AllowAnyOrigin()//we can provide ui url here
-                //.WithOrigins("http://localhost:5173","https://retailbankingui-a0dtbkhfdjd7hbh6.southeastasia-01.azurewebsites.net")
-                .AllowAnyHeader()
-                .AllowAnyMethod()
-                .AllowCredentials(); 
-        });
+    options.AddPolicy("AllowReact", policy =>
+    {
+        policy
+            .WithOrigins(
+                "http://localhost:5173",
+                "https://retailbankingui-a0dtbkhfdjd7hbh6.southeastasia-01.azurewebsites.net"
+            )
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
 });
 
 builder.Services.AddSwaggerGen(options =>
