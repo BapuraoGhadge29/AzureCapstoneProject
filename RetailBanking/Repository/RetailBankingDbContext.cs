@@ -18,6 +18,7 @@ public partial class RetailBankingDbContext : DbContext
     public virtual DbSet<Customer> Customers { get; set; }
     public virtual DbSet<KYCStatus> KYCStatuses { get; set; }
     public virtual DbSet<DocumentDetails> DocumentDetails { get; set; }
-    
+    public virtual DbSet<UserRole> UserRoles { get; set; }
+
 }
 

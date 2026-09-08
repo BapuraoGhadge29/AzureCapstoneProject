@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using RetailBanking.Constants;
 using RetailBanking.Interfaces;
 using RetailBanking.Models;
@@ -36,7 +37,7 @@ namespace RetailBanking.Controllers
 
             return Ok(new { EMI = emi });
         }
-
+        [Authorize(Roles = "User")]
         [HttpPost("loanapply")]
         public async Task<IActionResult> ApplyLoanAsync([FromForm] LoanApplication loanApplication)
         {
@@ -100,6 +101,7 @@ namespace RetailBanking.Controllers
             var applications = await _loanService.GetApplicationsAsync();
             return Ok(applications);
         }
+        [Authorize(Roles = "Manager")]
         [HttpPost("ApproveRejectLoanApplication")]
         public async Task<IActionResult> ApproveRejectLoanApplicationAsync(int id,string status)
         {            

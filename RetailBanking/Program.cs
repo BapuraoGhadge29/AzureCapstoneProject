@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Web;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.OpenApi.Models;
 using RetailBanking.Hubs;
 using RetailBanking.Interfaces;
@@ -100,7 +101,6 @@ builder.Services.AddSingleton<NotificationPublisher>();
 builder.Services.Configure<CreditRules>(builder.Configuration.GetSection("CreditRules"));
 
 
-builder.Services.AddAuthentication();
 builder.Services.AddAuthorization();
 
 
@@ -114,21 +114,23 @@ builder.Services.AddSignalR()
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-//if (app.Environment.IsDevelopment())
-//{
-//    app.UseSwagger();
-//    app.UseSwaggerUI();
-//}
-app.UseCors("AllowReact");
+// Swagger enabled for all environments here; restrict to Development if desired.
 app.UseRouting();
+
+// CORS must be applied between UseRouting and UseAuthorization/UseAuthentication
+app.UseCors("AllowReact");
 
 app.UseSwagger();
 app.UseSwaggerUI();
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
 app.UseAuthentication();
 app.UseAuthorization();
+
 app.MapControllers();
 app.MapHub<CustomerHub>("/customerhub");
+
 app.Run();
 

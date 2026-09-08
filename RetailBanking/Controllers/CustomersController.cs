@@ -14,7 +14,7 @@ namespace RetailBanking.Controllers
 {
     [Route("RetailBanking-api/[controller]")]
     [ApiController]
-   // [Authorize]
+    [Authorize(Roles = "User,Manager")]
     public class CustomersController : ControllerBase
     {
         private readonly IcustomerService _customerservice;
@@ -27,8 +27,7 @@ namespace RetailBanking.Controllers
             _configuration = configuration;
             _hubContext = hubContext;
             _logger = logger;
-        }
-       
+        }       
         [HttpGet("GetAllCustomers")]
         public async Task<IActionResult> GetAllCustomers()
         {
@@ -133,6 +132,19 @@ namespace RetailBanking.Controllers
                     await _customerservice.DocumentSaveToDb(documentDetails);
                 }
             }
+        }
+        
+        [Authorize]
+        [HttpGet("claims")]
+        public IActionResult Claims()
+        {
+            var IsAuthenticated = User.Identity?.IsAuthenticated;
+            var Name = User.Identity?.Name;
+            return Ok(User.Claims.Select(x => new
+            {
+                x.Type,
+                x.Value
+            }));
         }
     }
 }
